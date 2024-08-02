@@ -83,8 +83,8 @@ function moveSnake() {
     powerUps.forEach((powerUp, index) => {
         if (head.x === powerUp.x && head.y === powerUp.y) {
             powerUpTimer = maxPowerUpTime;
-            powerUps.splice(index, 1); // Remove power-up after collection
-            generatePowerUps();
+            powerUps.splice(index, 1);
+            eatSound.play();
         }
     });
 }
@@ -94,29 +94,33 @@ function getRandomFoodPosition() {
     do {
         foodX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
         foodY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-    } while (snake.some(part => part.x === foodX && part.y === foodY) || 
-             obstacles.some(obs => obs.x === foodX && obs.y === foodY));
+    } while (snake.some(part => part.x === foodX && part.y === foodY) ||
+             obstacles.some(obs => obs.x === foodX && obs.y === foodY) ||
+             powerUps.some(pu => pu.x === foodX && pu.y === foodY));
     return {x: foodX, y: foodY};
 }
 
 function generateObstacles() {
     let obstacles = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 15; i++) { // Increased number of obstacles
         let obsX, obsY;
         do {
             obsX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
             obsY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
         } while (snake.some(part => part.x === obsX && part.y === obsY) || 
-                 (obsX === food.x && obsY === food.y));
+                 (obsX === food.x && obsY === food.y) ||
+                 powerUps.some(pu => pu.x === obsX && pu.y === obsY));
         obstacles.push({x: obsX, y: obsY});
     }
     return obstacles;
 }
 
 function generatePowerUps() {
-    let newPowerUp = getRandomPowerUpPosition();
-    if (!powerUps.some(pu => pu.x === newPowerUp.x && pu.y === newPowerUp.y)) {
-        powerUps.push(newPowerUp);
+    if (powerUps.length < 3) { // Limit number of power-ups
+        let newPowerUp = getRandomPowerUpPosition();
+        if (!powerUps.some(pu => pu.x === newPowerUp.x && pu.y === newPowerUp.y)) {
+            powerUps.push(newPowerUp);
+        }
     }
 }
 
@@ -149,6 +153,8 @@ function gameLoop() {
     }
     if (powerUpTimer > 0) {
         powerUpTimer -= speed;
+    } else {
+        powerUpTimer = 0;
     }
 
     if (hasGameEnded()) {
@@ -244,6 +250,23 @@ function toggleInstructions() {
 function toggleHighScores() {
     document.getElementById("highScoresModal").classList.toggle("hidden");
 }
+
+function resetHighScores() {
+    localStorage.removeItem("highScores");
+    updateHighScores();
+}
+
+function restartGame() {
+    startGame();
+}
+
+document.getElementById("pauseButton").addEventListener("click", togglePause);
+document.getElementById("instructionsButton").addEventListener("click", toggleInstructions);
+document.getElementById("highScoresButton").addEventListener("click", toggleHighScores);
+document.getElementById("resetButton").addEventListener("click", resetHighScores);
+document.getElementById("restartButton").addEventListener("click", restartGame);
+document.getElementById("closeHighScores").addEventListener("click", toggleHighScores);
+document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
 
 document.addEventListener("keydown", changeDirection);
 

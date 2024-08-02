@@ -14,23 +14,25 @@
             <div id="high-score">High Score: 0</div>
             <div id="level">Level: 1</div>
         </div>
-        <button id="pauseButton" onclick="togglePause()">Pause</button>
-        <button id="instructionsButton" onclick="toggleInstructions()">Instructions</button>
+        <div class="controls">
+            <button id="pauseButton">Pause</button>
+            <button id="instructionsButton">Instructions</button>
+            <button id="highScoresButton">High Scores</button>
+            <button id="resetButton">Reset High Scores</button>
+        </div>
         <div id="instructions" class="hidden">
-            <p>Use arrow keys to move the snake. Eat the food to score points. Avoid the obstacles and walls!</p>
+            <p>Use arrow keys to move the snake. Eat the food to score points. Avoid obstacles and walls!</p>
+            <button id="closeInstructions">Close</button>
         </div>
         <div id="gameOverModal" class="hidden">
             <h2>Game Over</h2>
             <p>Your Score: <span id="finalScore">0</span></p>
-            <button id="restartButton" onclick="startGame()">Play Again</button>
-            <button id="highScoresButton" onclick="toggleHighScores()">High Scores</button>
+            <button id="restartButton">Play Again</button>
         </div>
         <div id="highScoresModal" class="hidden">
             <h2>High Scores</h2>
-            <ul id="highScoresList">
-                <!-- High Scores will be dynamically inserted here -->
-            </ul>
-            <button id="closeHighScores" onclick="toggleHighScores()">Close</button>
+            <ul id="highScoresList"></ul>
+            <button id="closeHighScores">Close</button>
         </div>
         <audio id="gameOverSound" src="gameover.mp3" preload="auto"></audio>
         <audio id="eatSound" src="eat.mp3" preload="auto"></audio>
