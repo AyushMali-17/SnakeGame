@@ -5,9 +5,11 @@ const canvasSize = 600;
 const snakeColor = 'lime';
 const foodColor = 'red';
 const obstacleColor = 'gray';
+const powerUpColor = 'gold';
 const obstacleSize = 40;
 let snake = [{x: 100, y: 100}];
 let food = getRandomFoodPosition();
+let powerUps = [getRandomPowerUpPosition()];
 let obstacles = generateObstacles();
 let dx = gridSize;
 let dy = 0;
@@ -19,6 +21,8 @@ let speed = 100;
 let gameEnded = false;
 let isPaused = false;
 let showInstructions = false;
+let powerUpTimer = 0;
+const maxPowerUpTime = 5000; // 5 seconds for power-up
 
 const gameOverSound = document.getElementById("gameOverSound");
 const eatSound = document.getElementById("eatSound");
@@ -50,6 +54,13 @@ function drawObstacles() {
     });
 }
 
+function drawPowerUps() {
+    ctx.fillStyle = powerUpColor;
+    powerUps.forEach(powerUp => {
+        ctx.fillRect(powerUp.x, powerUp.y, gridSize, gridSize);
+    });
+}
+
 function moveSnake() {
     const head = {x: snake[0].x + dx, y: snake[0].y + dy};
     snake.unshift(head);
@@ -67,6 +78,15 @@ function moveSnake() {
     } else {
         snake.pop();
     }
+
+    // Check if snake hits power-up
+    powerUps.forEach((powerUp, index) => {
+        if (head.x === powerUp.x && head.y === powerUp.y) {
+            powerUpTimer = maxPowerUpTime;
+            powerUps.splice(index, 1); // Remove power-up after collection
+            generatePowerUps();
+        }
+    });
 }
 
 function getRandomFoodPosition() {
@@ -74,22 +94,41 @@ function getRandomFoodPosition() {
     do {
         foodX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
         foodY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-    } while (snake.some(part => part.x === foodX && part.y === foodY) || obstacles.some(obstacle => obstacle.x === foodX && obstacle.y === foodY));
+    } while (snake.some(part => part.x === foodX && part.y === foodY) || 
+             obstacles.some(obs => obs.x === foodX && obs.y === foodY));
     return {x: foodX, y: foodY};
 }
 
 function generateObstacles() {
-    const numberOfObstacles = Math.floor(level / 2) + 3;
     let obstacles = [];
-    while (obstacles.length < numberOfObstacles) {
-        const x = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-        const y = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-        if (!snake.some(part => part.x === x && part.y === y) &&
-            !obstacles.some(obstacle => obstacle.x === x && obstacle.y === y)) {
-            obstacles.push({x, y});
-        }
+    for (let i = 0; i < 5; i++) {
+        let obsX, obsY;
+        do {
+            obsX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
+            obsY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
+        } while (snake.some(part => part.x === obsX && part.y === obsY) || 
+                 (obsX === food.x && obsY === food.y));
+        obstacles.push({x: obsX, y: obsY});
     }
     return obstacles;
+}
+
+function generatePowerUps() {
+    let newPowerUp = getRandomPowerUpPosition();
+    if (!powerUps.some(pu => pu.x === newPowerUp.x && pu.y === newPowerUp.y)) {
+        powerUps.push(newPowerUp);
+    }
+}
+
+function getRandomPowerUpPosition() {
+    let powerUpX, powerUpY;
+    do {
+        powerUpX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
+        powerUpY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
+    } while (snake.some(part => part.x === powerUpX && part.y === powerUpY) || 
+             obstacles.some(obs => obs.x === powerUpX && obs.y === powerUpY) || 
+             (powerUpX === food.x && powerUpY === food.y));
+    return {x: powerUpX, y: powerUpY};
 }
 
 function updateScore() {
@@ -97,13 +136,21 @@ function updateScore() {
     document.getElementById("level").innerText = `Level: ${level}`;
     if (score > highScore) {
         highScore = score;
-        document.getElementById("high-score").innerText = `High Score: ${highScore}`;
         localStorage.setItem("highScore", highScore);
+        document.getElementById("high-score").innerText = `High Score: ${highScore}`;
     }
 }
 
 function gameLoop() {
-    if (isPaused) return;
+    if (gameEnded) return;
+    if (isPaused) {
+        setTimeout(gameLoop, speed);
+        return;
+    }
+    if (powerUpTimer > 0) {
+        powerUpTimer -= speed;
+    }
+
     if (hasGameEnded()) {
         displayGameOver();
         return;
@@ -112,6 +159,7 @@ function gameLoop() {
     clearCanvas();
     drawFood();
     drawObstacles();
+    drawPowerUps();
     moveSnake();
     drawSnake();
     setTimeout(gameLoop, speed);
@@ -135,7 +183,23 @@ function hasGameEnded() {
 function displayGameOver() {
     gameEnded = true;
     gameOverSound.play();
-    document.getElementById("overlay").classList.remove("hidden");
+    document.getElementById("finalScore").innerText = score;
+    document.getElementById("gameOverModal").classList.remove("hidden");
+    document.getElementById("highScoresModal").classList.add("hidden");
+    updateHighScores();
+}
+
+function updateHighScores() {
+    const highScoresList = document.getElementById("highScoresList");
+    const highScores = JSON.parse(localStorage.getItem("highScores") || "[]");
+
+    highScores.push(score);
+    highScores.sort((a, b) => b - a);
+    highScores.splice(5); // Keep top 5 scores
+
+    localStorage.setItem("highScores", JSON.stringify(highScores));
+
+    highScoresList.innerHTML = highScores.map(score => `<li>${score}</li>`).join('');
 }
 
 function startGame() {
@@ -146,17 +210,20 @@ function startGame() {
     level = 1;
     speed = 100;
     obstacles = generateObstacles();
+    powerUps = [getRandomPowerUpPosition()];
     gameEnded = false;
     isPaused = false;
+    powerUpTimer = 0;
     document.getElementById("score").innerText = `Score: ${score}`;
     document.getElementById("level").innerText = `Level: ${level}`;
     document.getElementById("high-score").innerText = `High Score: ${highScore}`;
-    document.getElementById("restartButton").style.display = "none";
     document.getElementById("instructions").classList.add("hidden");
-    document.getElementById("overlay").classList.add("hidden");
+    document.getElementById("gameOverModal").classList.add("hidden");
+    document.getElementById("highScoresModal").classList.add("hidden");
     clearCanvas();
     drawFood();
     drawObstacles();
+    drawPowerUps();
     drawSnake();
     gameLoop();
 }
@@ -172,6 +239,10 @@ function togglePause() {
 function toggleInstructions() {
     showInstructions = !showInstructions;
     document.getElementById("instructions").classList.toggle("hidden", !showInstructions);
+}
+
+function toggleHighScores() {
+    document.getElementById("highScoresModal").classList.toggle("hidden");
 }
 
 document.addEventListener("keydown", changeDirection);

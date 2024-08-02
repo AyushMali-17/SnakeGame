@@ -9,10 +9,6 @@
 <body>
     <div class="game-container">
         <canvas id="gameCanvas" width="600" height="600"></canvas>
-        <div id="overlay" class="hidden">
-            <div id="gameOverText">Game Over</div>
-            <button id="restartButton" onclick="startGame()">Play Again</button>
-        </div>
         <div id="score-container">
             <div id="score">Score: 0</div>
             <div id="high-score">High Score: 0</div>
@@ -21,7 +17,20 @@
         <button id="pauseButton" onclick="togglePause()">Pause</button>
         <button id="instructionsButton" onclick="toggleInstructions()">Instructions</button>
         <div id="instructions" class="hidden">
-            <p>Use arrow keys to move the snake. Eat the food to score points. Avoid the obstacles!</p>
+            <p>Use arrow keys to move the snake. Eat the food to score points. Avoid the obstacles and walls!</p>
+        </div>
+        <div id="gameOverModal" class="hidden">
+            <h2>Game Over</h2>
+            <p>Your Score: <span id="finalScore">0</span></p>
+            <button id="restartButton" onclick="startGame()">Play Again</button>
+            <button id="highScoresButton" onclick="toggleHighScores()">High Scores</button>
+        </div>
+        <div id="highScoresModal" class="hidden">
+            <h2>High Scores</h2>
+            <ul id="highScoresList">
+                <!-- High Scores will be dynamically inserted here -->
+            </ul>
+            <button id="closeHighScores" onclick="toggleHighScores()">Close</button>
         </div>
         <audio id="gameOverSound" src="gameover.mp3" preload="auto"></audio>
         <audio id="eatSound" src="eat.mp3" preload="auto"></audio>
