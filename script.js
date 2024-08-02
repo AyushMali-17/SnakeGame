@@ -1,309 +1,242 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const gridSize = 20;
-const canvasSize = 600;
-const snakeColor = 'lime';
-const foodColor = 'red';
-const obstacleColor = 'gray';
-const powerUpColor = 'gold';
-const obstacleSize = 40;
-let snake = [{x: 100, y: 100}];
-let food = getRandomFoodPosition();
-let powerUps = [getRandomPowerUpPosition()];
-let obstacles = generateObstacles();
-let dx = gridSize;
-let dy = 0;
-let changingDirection = false;
-let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
-let level = 1;
-let speed = 100;
-let gameEnded = false;
-let isPaused = false;
-let showInstructions = false;
-let powerUpTimer = 0;
-const maxPowerUpTime = 5000; // 5 seconds for power-up
+document.addEventListener('DOMContentLoaded', (event) => {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const particleCanvas = document.getElementById('particleCanvas');
+    const particleCtx = particleCanvas.getContext('2d');
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
 
-const gameOverSound = document.getElementById("gameOverSound");
-const eatSound = document.getElementById("eatSound");
-const moveSound = document.getElementById("moveSound");
-const hitSound = document.getElementById("hitSound");
+    const scoreDisplay = document.getElementById('score');
+    const highScoreDisplay = document.getElementById('highScore');
+    const levelDisplay = document.getElementById('level');
+    const timeDisplay = document.getElementById('time');
+    const finalScoreDisplay = document.getElementById('finalScore');
+    const finalHighScoreDisplay = document.getElementById('finalHighScore');
 
-function drawSnakePart(snakePart) {
-    ctx.fillStyle = snakeColor;
-    ctx.fillRect(snakePart.x, snakePart.y, gridSize, gridSize);
-}
+    const startButton = document.getElementById('startButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const restartButton = document.getElementById('restartButton');
+    const playAgainButton = document.getElementById('playAgainButton');
 
-function drawSnake() {
-    snake.forEach(drawSnakePart);
-}
+    const difficultySelect = document.getElementById('difficultySelect');
+    const soundToggle = document.getElementById('soundToggle');
+    const themeSelect = document.getElementById('themeSelect');
 
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
+    const gameOverModal = document.getElementById('gameOverModal');
+    const powerUpList = document.getElementById('powerUpList');
+    const achievementList = document.getElementById('achievementList');
 
-function drawFood() {
-    ctx.fillStyle = foodColor;
-    ctx.fillRect(food.x, food.y, gridSize, gridSize);
-}
+    let snake;
+    let apple;
+    let score;
+    let highScore = 0;
+    let level;
+    let gameInterval;
+    let gamePaused = false;
+    let startTime;
+    let gameDuration = 0;
+    let particles = [];
 
-function drawObstacles() {
-    ctx.fillStyle = obstacleColor;
-    obstacles.forEach(obstacle => {
-        ctx.fillRect(obstacle.x, obstacle.y, gridSize, gridSize);
-    });
-}
-
-function drawPowerUps() {
-    ctx.fillStyle = powerUpColor;
-    powerUps.forEach(powerUp => {
-        ctx.fillRect(powerUp.x, powerUp.y, gridSize, gridSize);
-    });
-}
-
-function moveSnake() {
-    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-    snake.unshift(head);
-
-    if (head.x === food.x && head.y === food.y) {
-        score += 10;
-        if (score % 50 === 0) {
-            level++;
-            speed = Math.max(50, speed - 10);
-            obstacles = generateObstacles();
-        }
+    function initGame() {
+        snake = [{ x: 150, y: 150 }];
+        apple = spawnApple();
+        score = 0;
+        level = 1;
+        gameDuration = 0;
+        startTime = Date.now();
         updateScore();
-        eatSound.play();
-        food = getRandomFoodPosition();
-    } else {
-        snake.pop();
+        updateHighScore();
+        updateLevel();
+        updateTime();
+        spawnParticles();
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(gameLoop, getSpeed());
     }
 
-    // Check if snake hits power-up
-    powerUps.forEach((powerUp, index) => {
-        if (head.x === powerUp.x && head.y === powerUp.y) {
-            powerUpTimer = maxPowerUpTime;
-            powerUps.splice(index, 1);
-            eatSound.play();
+    function getSpeed() {
+        switch (difficultySelect.value) {
+            case 'easy': return 200;
+            case 'medium': return 100;
+            case 'hard': return 50;
+            case 'extreme': return 25;
+        }
+    }
+
+    function gameLoop() {
+        if (!gamePaused) {
+            moveSnake();
+            checkCollision();
+            draw();
+            updateTime();
+        }
+    }
+
+    function moveSnake() {
+        const head = { ...snake[0] };
+        if (direction === 'right') head.x += 10;
+        if (direction === 'left') head.x -= 10;
+        if (direction === 'up') head.y -= 10;
+        if (direction === 'down') head.y += 10;
+
+        snake.unshift(head);
+        if (head.x === apple.x && head.y === apple.y) {
+            score++;
+            updateScore();
+            apple = spawnApple();
+        } else {
+            snake.pop();
+        }
+    }
+
+    function checkCollision() {
+        const head = snake[0];
+        if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+            gameOver();
+        }
+
+        for (let i = 1; i < snake.length; i++) {
+            if (snake[i].x === head.x && snake[i].y === head.y) {
+                gameOver();
+            }
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        snake.forEach((segment, index) => {
+            ctx.fillStyle = index === 0 ? 'yellow' : 'lime';
+            ctx.fillRect(segment.x, segment.y, 10, 10);
+        });
+
+        ctx.fillStyle = 'red';
+        ctx.fillRect(apple.x, apple.y, 10, 10);
+    }
+
+    function spawnApple() {
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * (canvas.width / 10)) * 10;
+            y = Math.floor(Math.random() * (canvas.height / 10)) * 10;
+        } while (snake.some(segment => segment.x === x && segment.y === y));
+        return { x, y };
+    }
+
+    function gameOver() {
+        clearInterval(gameInterval);
+        finalScoreDisplay.textContent = score;
+        finalHighScoreDisplay.textContent = highScore;
+        gameOverModal.style.display = 'block';
+        storeHighScore();
+    }
+
+    function updateScore() {
+        scoreDisplay.textContent = score;
+        if (score > highScore) {
+            highScore = score;
+            updateHighScore();
+        }
+    }
+
+    function updateHighScore() {
+        highScoreDisplay.textContent = highScore;
+    }
+
+    function updateLevel() {
+        levelDisplay.textContent = level;
+    }
+
+    function updateTime() {
+        gameDuration = Date.now() - startTime;
+        const minutes = Math.floor(gameDuration / 60000);
+        const seconds = Math.floor((gameDuration % 60000) / 1000);
+        timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function storeHighScore() {
+        localStorage.setItem('highScore', highScore);
+    }
+
+    function loadHighScore() {
+        const storedHighScore = localStorage.getItem('highScore');
+        if (storedHighScore) {
+            highScore = parseInt(storedHighScore, 10);
+            updateHighScore();
+        }
+    }
+
+    startButton.addEventListener('click', () => {
+        initGame();
+    });
+
+    pauseButton.addEventListener('click', () => {
+        gamePaused = !gamePaused;
+    });
+
+    restartButton.addEventListener('click', () => {
+        initGame();
+    });
+
+    playAgainButton.addEventListener('click', () => {
+        gameOverModal.style.display = 'none';
+        initGame();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case 'ArrowUp':
+                if (direction !== 'down') direction = 'up';
+                break;
+            case 'ArrowDown':
+                if (direction !== 'up') direction = 'down';
+                break;
+            case 'ArrowLeft':
+                if (direction !== 'right') direction = 'left';
+                break;
+            case 'ArrowRight':
+                if (direction !== 'left') direction = 'right';
+                break;
         }
     });
-}
 
-function getRandomFoodPosition() {
-    let foodX, foodY;
-    do {
-        foodX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-        foodY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-    } while (snake.some(part => part.x === foodX && part.y === foodY) ||
-             obstacles.some(obs => obs.x === foodX && obs.y === foodY) ||
-             powerUps.some(pu => pu.x === foodX && pu.y === foodY));
-    return {x: foodX, y: foodY};
-}
-
-function generateObstacles() {
-    let obstacles = [];
-    for (let i = 0; i < 15; i++) { // Increased number of obstacles
-        let obsX, obsY;
-        do {
-            obsX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-            obsY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-        } while (snake.some(part => part.x === obsX && part.y === obsY) || 
-                 (obsX === food.x && obsY === food.y) ||
-                 powerUps.some(pu => pu.x === obsX && pu.y === obsY));
-        obstacles.push({x: obsX, y: obsY});
-    }
-    return obstacles;
-}
-
-function generatePowerUps() {
-    if (powerUps.length < 3) { // Limit number of power-ups
-        let newPowerUp = getRandomPowerUpPosition();
-        if (!powerUps.some(pu => pu.x === newPowerUp.x && pu.y === newPowerUp.y)) {
-            powerUps.push(newPowerUp);
+    function spawnParticles() {
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * particleCanvas.width,
+                y: Math.random() * particleCanvas.height,
+                radius: Math.random() * 3,
+                speedX: Math.random() * 0.5 - 0.25,
+                speedY: Math.random() * 0.5 - 0.25,
+                alpha: Math.random() * 0.5 + 0.5
+            });
         }
     }
-}
 
-function getRandomPowerUpPosition() {
-    let powerUpX, powerUpY;
-    do {
-        powerUpX = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-        powerUpY = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
-    } while (snake.some(part => part.x === powerUpX && part.y === powerUpY) || 
-             obstacles.some(obs => obs.x === powerUpX && obs.y === powerUpY) || 
-             (powerUpX === food.x && powerUpY === food.y));
-    return {x: powerUpX, y: powerUpY};
-}
+    function drawParticles() {
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        particles.forEach((particle, index) => {
+            particleCtx.beginPath();
+            particleCtx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            particleCtx.fillStyle = `rgba(255, 215, 0, ${particle.alpha})`;
+            particleCtx.fill();
 
-function updateScore() {
-    document.getElementById("score").innerText = `Score: ${score}`;
-    document.getElementById("level").innerText = `Level: ${level}`;
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem("highScore", highScore);
-        document.getElementById("high-score").innerText = `High Score: ${highScore}`;
-    }
-}
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
 
-function gameLoop() {
-    if (gameEnded) return;
-    if (isPaused) {
-        setTimeout(gameLoop, speed);
-        return;
-    }
-    if (powerUpTimer > 0) {
-        powerUpTimer -= speed;
-    } else {
-        powerUpTimer = 0;
+            if (particle.x < 0 || particle.x > particleCanvas.width || particle.y < 0 || particle.y > particleCanvas.height) {
+                particles[index] = {
+                    x: Math.random() * particleCanvas.width,
+                    y: Math.random() * particleCanvas.height,
+                    radius: Math.random() * 3,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25,
+                    alpha: Math.random() * 0.5 + 0.5
+                };
+            }
+        });
+        requestAnimationFrame(drawParticles);
     }
 
-    if (hasGameEnded()) {
-        displayGameOver();
-        return;
-    }
-    changingDirection = false;
-    clearCanvas();
-    drawFood();
-    drawObstacles();
-    drawPowerUps();
-    moveSnake();
-    drawSnake();
-    setTimeout(gameLoop, speed);
-}
-
-function hasGameEnded() {
-    for (let i = 4; i < snake.length; i++) {
-        if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
-    }
-
-    const hitLeftWall = snake[0].x < 0;
-    const hitRightWall = snake[0].x >= canvas.width;
-    const hitTopWall = snake[0].y < 0;
-    const hitBottomWall = snake[0].y >= canvas.height;
-
-    const hitObstacle = obstacles.some(obstacle => obstacle.x === snake[0].x && obstacle.y === snake[0].y);
-
-    return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall || hitObstacle;
-}
-
-function displayGameOver() {
-    gameEnded = true;
-    gameOverSound.play();
-    document.getElementById("finalScore").innerText = score;
-    document.getElementById("gameOverModal").classList.remove("hidden");
-    document.getElementById("highScoresModal").classList.add("hidden");
-    updateHighScores();
-}
-
-function updateHighScores() {
-    const highScoresList = document.getElementById("highScoresList");
-    const highScores = JSON.parse(localStorage.getItem("highScores") || "[]");
-
-    highScores.push(score);
-    highScores.sort((a, b) => b - a);
-    highScores.splice(5); // Keep top 5 scores
-
-    localStorage.setItem("highScores", JSON.stringify(highScores));
-
-    highScoresList.innerHTML = highScores.map(score => `<li>${score}</li>`).join('');
-}
-
-function startGame() {
-    snake = [{x: 100, y: 100}];
-    dx = gridSize;
-    dy = 0;
-    score = 0;
-    level = 1;
-    speed = 100;
-    obstacles = generateObstacles();
-    powerUps = [getRandomPowerUpPosition()];
-    gameEnded = false;
-    isPaused = false;
-    powerUpTimer = 0;
-    document.getElementById("score").innerText = `Score: ${score}`;
-    document.getElementById("level").innerText = `Level: ${level}`;
-    document.getElementById("high-score").innerText = `High Score: ${highScore}`;
-    document.getElementById("instructions").classList.add("hidden");
-    document.getElementById("gameOverModal").classList.add("hidden");
-    document.getElementById("highScoresModal").classList.add("hidden");
-    clearCanvas();
-    drawFood();
-    drawObstacles();
-    drawPowerUps();
-    drawSnake();
-    gameLoop();
-}
-
-function togglePause() {
-    isPaused = !isPaused;
-    document.getElementById("pauseButton").classList.toggle("active", isPaused);
-    if (!isPaused) {
-        gameLoop();
-    }
-}
-
-function toggleInstructions() {
-    showInstructions = !showInstructions;
-    document.getElementById("instructions").classList.toggle("hidden", !showInstructions);
-}
-
-function toggleHighScores() {
-    document.getElementById("highScoresModal").classList.toggle("hidden");
-}
-
-function resetHighScores() {
-    localStorage.removeItem("highScores");
-    updateHighScores();
-}
-
-function restartGame() {
-    startGame();
-}
-
-document.getElementById("pauseButton").addEventListener("click", togglePause);
-document.getElementById("instructionsButton").addEventListener("click", toggleInstructions);
-document.getElementById("highScoresButton").addEventListener("click", toggleHighScores);
-document.getElementById("resetButton").addEventListener("click", resetHighScores);
-document.getElementById("restartButton").addEventListener("click", restartGame);
-document.getElementById("closeHighScores").addEventListener("click", toggleHighScores);
-document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
-
-document.addEventListener("keydown", changeDirection);
-
-function changeDirection(event) {
-    if (changingDirection || isPaused) return;
-    changingDirection = true;
-    const LEFT_KEY = 37;
-    const RIGHT_KEY = 39;
-    const UP_KEY = 38;
-    const DOWN_KEY = 40;
-
-    const keyPressed = event.keyCode;
-    const goingUp = dy === -gridSize;
-    const goingDown = dy === gridSize;
-    const goingRight = dx === gridSize;
-    const goingLeft = dx === -gridSize;
-
-    if (keyPressed === LEFT_KEY && !goingRight) {
-        dx = -gridSize;
-        dy = 0;
-        moveSound.play();
-    }
-    if (keyPressed === RIGHT_KEY && !goingLeft) {
-        dx = gridSize;
-        dy = 0;
-        moveSound.play();
-    }
-    if (keyPressed === UP_KEY && !goingDown) {
-        dx = 0;
-        dy = -gridSize;
-        moveSound.play();
-    }
-    if (keyPressed === DOWN_KEY && !goingUp) {
-        dx = 0;
-        dy = gridSize;
-        moveSound.play();
-    }
-}
-
-startGame();
+    loadHighScore();
+    drawParticles();
+});
