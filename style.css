@@ -12,8 +12,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 1px solid #000;
+    border: 2px solid #000;
     background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
 }
 
 canvas {
@@ -21,13 +23,13 @@ canvas {
     border: 1px solid #333;
 }
 
-#score, #high-score {
+#score, #high-score, #level {
     margin-top: 10px;
     font-size: 20px;
     color: #000;
 }
 
-#restartButton, #pauseButton {
+#restartButton, #pauseButton, #instructionsButton {
     margin-top: 10px;
     padding: 10px;
     font-size: 16px;
@@ -41,7 +43,6 @@ canvas {
     text-align: center;
 }
 
-/* New styles */
 .hidden {
     display: none;
 }
@@ -58,4 +59,19 @@ canvas {
 
 #restartButton.active {
     background-color: green;
+}
+
+#instructionsButton.active {
+    background-color: lightblue;
+}
+
+/* Added animations */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.game-container {
+    animation: blink 1s infinite;
 }

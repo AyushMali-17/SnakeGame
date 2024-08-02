@@ -11,15 +11,17 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <div id="score">Score: 0</div>
         <div id="high-score">High Score: 0</div>
+        <div id="level">Level: 1</div>
         <button id="restartButton" onclick="startGame()">Play</button>
         <button id="pauseButton" onclick="togglePause()">Pause</button>
+        <button id="instructionsButton" onclick="toggleInstructions()">Instructions</button>
         <div id="instructions" class="hidden">
-            <p>Use arrow keys to move the snake. Eat the food to score points.</p>
+            <p>Use arrow keys to move the snake. Eat the food to score points. Avoid the obstacles!</p>
         </div>
         <audio id="gameOverSound" src="gameover.mp3" preload="auto"></audio>
-        <!-- Add more game sounds -->
         <audio id="eatSound" src="eat.mp3" preload="auto"></audio>
         <audio id="moveSound" src="move.mp3" preload="auto"></audio>
+        <audio id="hitSound" src="hit.mp3" preload="auto"></audio>
     </div>
     <script src="script.js"></script>
 </body>
