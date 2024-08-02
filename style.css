@@ -18,10 +18,44 @@ body {
 
 canvas {
     background-color: #000;
+    border: 1px solid #333;
 }
 
-#score {
+#score, #high-score {
     margin-top: 10px;
     font-size: 20px;
     color: #000;
+}
+
+#restartButton, #pauseButton {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#instructions {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #000;
+    text-align: center;
+}
+
+/* New styles */
+.hidden {
+    display: none;
+}
+
+.game-over {
+    text-align: center;
+    font-size: 50px;
+    color: red;
+}
+
+#pauseButton.active {
+    background-color: yellow;
+}
+
+#restartButton.active {
+    background-color: green;
 }
