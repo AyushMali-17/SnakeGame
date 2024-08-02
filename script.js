@@ -1,11 +1,11 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const gridSize = 20;
-const canvasSize = 400;
+const canvasSize = 600;
 const snakeColor = 'lime';
 const foodColor = 'red';
 const obstacleColor = 'gray';
-const obstacleSize = 40;  // Increase size of obstacles
+const obstacleSize = 40;
 let snake = [{x: 100, y: 100}];
 let food = getRandomFoodPosition();
 let obstacles = generateObstacles();
@@ -15,7 +15,7 @@ let changingDirection = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
 let level = 1;
-let speed = 100; // Initial speed
+let speed = 100;
 let gameEnded = false;
 let isPaused = false;
 let showInstructions = false;
@@ -56,10 +56,10 @@ function moveSnake() {
 
     if (head.x === food.x && head.y === food.y) {
         score += 10;
-        if (score % 50 === 0) { // Increase level every 50 points
+        if (score % 50 === 0) {
             level++;
-            speed = Math.max(50, speed - 10); // Increase speed with each level
-            obstacles = generateObstacles(); // Add new obstacles on level up
+            speed = Math.max(50, speed - 10);
+            obstacles = generateObstacles();
         }
         updateScore();
         eatSound.play();
@@ -79,7 +79,7 @@ function getRandomFoodPosition() {
 }
 
 function generateObstacles() {
-    const numberOfObstacles = Math.floor(level / 2) + 3; // Increase obstacles with each level
+    const numberOfObstacles = Math.floor(level / 2) + 3;
     let obstacles = [];
     while (obstacles.length < numberOfObstacles) {
         const x = Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
@@ -134,14 +134,8 @@ function hasGameEnded() {
 
 function displayGameOver() {
     gameEnded = true;
-    hitSound.play();
     gameOverSound.play();
-    ctx.fillStyle = 'red';
-    ctx.font = '50px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Game Over', canvasSize / 2, canvasSize / 2);
-    document.getElementById("restartButton").style.display = "block";
-    document.getElementById("instructions").classList.add("hidden");
+    document.getElementById("overlay").classList.remove("hidden");
 }
 
 function startGame() {
@@ -159,6 +153,7 @@ function startGame() {
     document.getElementById("high-score").innerText = `High Score: ${highScore}`;
     document.getElementById("restartButton").style.display = "none";
     document.getElementById("instructions").classList.add("hidden");
+    document.getElementById("overlay").classList.add("hidden");
     clearCanvas();
     drawFood();
     drawObstacles();

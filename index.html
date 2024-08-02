@@ -8,11 +8,16 @@
 </head>
 <body>
     <div class="game-container">
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div id="score">Score: 0</div>
-        <div id="high-score">High Score: 0</div>
-        <div id="level">Level: 1</div>
-        <button id="restartButton" onclick="startGame()">Play</button>
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div id="overlay" class="hidden">
+            <div id="gameOverText">Game Over</div>
+            <button id="restartButton" onclick="startGame()">Play Again</button>
+        </div>
+        <div id="score-container">
+            <div id="score">Score: 0</div>
+            <div id="high-score">High Score: 0</div>
+            <div id="level">Level: 1</div>
+        </div>
         <button id="pauseButton" onclick="togglePause()">Pause</button>
         <button id="instructionsButton" onclick="toggleInstructions()">Instructions</button>
         <div id="instructions" class="hidden">

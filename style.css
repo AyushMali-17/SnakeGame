@@ -3,75 +3,118 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #a2c2e6, #f7f7f7);
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
 .game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 2px solid #000;
+    border: 2px solid #333;
     background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
     padding: 20px;
+    position: relative;
 }
 
 canvas {
-    background-color: #000;
-    border: 1px solid #333;
+    background-color: #222;
+    border: 2px solid #555;
+}
+
+#score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
 }
 
 #score, #high-score, #level {
-    margin-top: 10px;
-    font-size: 20px;
-    color: #000;
+    margin-top: 5px;
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
 }
 
-#restartButton, #pauseButton, #instructionsButton {
+button {
     margin-top: 10px;
-    padding: 10px;
-    font-size: 16px;
+    padding: 10px 20px;
+    font-size: 18px;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
-#instructions {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #000;
-    text-align: center;
-}
-
-.hidden {
-    display: none;
-}
-
-.game-over {
-    text-align: center;
-    font-size: 50px;
-    color: red;
+button:hover {
+    background-color: #ddd;
 }
 
 #pauseButton.active {
     background-color: yellow;
 }
 
-#restartButton.active {
-    background-color: green;
+#restartButton {
+    background-color: #28a745;
+    color: white;
 }
 
-#instructionsButton.active {
-    background-color: lightblue;
+#restartButton:hover {
+    background-color: #218838;
 }
 
-/* Added animations */
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+#instructionsButton {
+    background-color: #007bff;
+    color: white;
 }
 
-.game-container {
-    animation: blink 1s infinite;
+#instructionsButton:hover {
+    background-color: #0056b3;
+}
+
+#instructions {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #555;
+    text-align: center;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#gameOverText {
+    font-size: 50px;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Enhanced animations */
+@keyframes snakeMove {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+#score, #high-score, #level {
+    animation: snakeMove 1s infinite;
 }
