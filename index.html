@@ -3,52 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Snake Game</title>
+    <title>Number Snake</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Ultimate Snake Game</h1>
-        <div class="game-area">
-            <canvas id="gameCanvas" width="600" height="600"></canvas>
-            <div class="side-panel">
-                <div class="game-info">
-                    <span class="score-container">Score: <span id="score">0</span></span>
-                    <span class="high-score-container">High Score: <span id="highScore">0</span></span>
-                    <span class="level-container">Level: <span id="level">1</span></span>
-                    <span class="time-container">Time: <span id="time">00:00</span></span>
-                </div>
-                <div class="power-ups">
-                    <h3>Power-ups</h3>
-                    <div id="powerUpList"></div>
-                </div>
-                <div class="achievements">
-                    <h3>Achievements</h3>
-                    <div id="achievementList"></div>
-                </div>
-            </div>
+        <h1>Number Snake</h1>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="game-info">
+            <span>Score: <span id="score">0</span></span>
+            <span>High Score: <span id="highScore">0</span></span>
+            <span>Next Number: <span id="nextNumber">1</span></span>
         </div>
         <div class="controls">
             <button id="startButton">Start Game</button>
-            <button id="pauseButton">Pause</button>
             <button id="restartButton">Restart</button>
-        </div>
-        <div class="settings">
-            <label for="difficultySelect">Difficulty:</label>
-            <select id="difficultySelect">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-                <option value="extreme">Extreme</option>
-            </select>
-            <label for="soundToggle">Sound:</label>
-            <input type="checkbox" id="soundToggle" checked>
-            <label for="themeSelect">Theme:</label>
-            <select id="themeSelect">
-                <option value="classic">Classic</option>
-                <option value="neon">Neon</option>
-                <option value="retro">Retro</option>
-            </select>
         </div>
     </div>
     <div id="gameOverModal" class="modal">
@@ -59,10 +28,6 @@
             <button id="playAgainButton">Play Again</button>
         </div>
     </div>
-    <canvas id="particleCanvas"></canvas>
-    <footer>
-        <p>&copy; 2024 Ultimate Snake Game. <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-    </footer>
     <script src="script.js"></script>
 </body>
 </html>
