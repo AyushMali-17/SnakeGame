@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
+    const darkModeToggle = document.getElementById('darkModeToggle');
     const gameOverModal = document.getElementById('gameOverModal');
     const playAgainButton = document.getElementById('playAgainButton');
     const scoreElement = document.getElementById('score');
@@ -10,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextNumberElement = document.getElementById('nextNumber');
     const finalScoreElement = document.getElementById('finalScore');
     const finalHighScoreElement = document.getElementById('finalHighScore');
+    const difficultySelect = document.getElementById('difficulty');
+    const eatSound = document.getElementById('eatSound');
+    const gameOverSound = document.getElementById('gameOverSound');
 
     const gridSize = 20;
     const tileCount = canvas.width / gridSize;
@@ -22,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let highScore = 0;
     let nextNumber;
     let gameInterval;
+    let intervalTime = 150;
 
     function resetGame() {
         snake = [{ x: 10, y: 10 }];
@@ -43,20 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawGame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        for (let segment of snake) {
+            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+        }
+
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+        ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+        ctx.font = '16px Arial';
         ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = 'green';
-        snake.forEach(segment => {
-            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
-        });
-
-        ctx.fillStyle = 'red';
-        ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
-
-        ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
-        ctx.fillText(food.value.toString(), food.x * gridSize + 6, food.y * gridSize + 14);
+        ctx.fillText(food.value, food.x * gridSize + 6, food.y * gridSize + 16);
     }
 
     function moveSnake() {
@@ -73,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextNumber++;
                 updateScore();
                 food = getRandomFood();
+                eatSound.play();
             } else {
                 gameOver();
                 return;
@@ -104,11 +109,35 @@ document.addEventListener('DOMContentLoaded', () => {
         finalScoreElement.textContent = score;
         finalHighScoreElement.textContent = highScore;
         gameOverModal.style.display = 'block';
+        gameOverSound.play();
     }
 
     function startGame() {
         resetGame();
-        gameInterval = setInterval(moveSnake, 150);
+        setDifficulty();
+        gameInterval = setInterval(moveSnake, intervalTime);
+    }
+
+    function setDifficulty() {
+        const difficulty = difficultySelect.value;
+        switch (difficulty) {
+            case 'easy':
+                intervalTime = 200;
+                break;
+            case 'medium':
+                intervalTime = 150;
+                break;
+            case 'hard':
+                intervalTime = 100;
+                break;
+            case 'extreme':
+                intervalTime = 50;
+                break;
+        }
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
     }
 
     document.addEventListener('keydown', (e) => {
@@ -124,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverModal.style.display = 'none';
         startGame();
     });
+    darkModeToggle.addEventListener('click', toggleDarkMode);
 
     resetGame();
 });

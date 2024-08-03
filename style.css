@@ -1,32 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Press Start 2P', cursive;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background: linear-gradient(45deg, #1a1a1a, #2b2b2b, #1a1a1a);
+    background-size: 200% 200%;
+    animation: gradientAnimation 15s ease infinite;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body.dark-mode {
+    background: linear-gradient(45deg, #0d0d0d, #1f1f1f, #0d0d0d);
+    color: #ffffff;
 }
 
 .container {
     text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    transition: background 0.3s, color 0.3s;
+}
+
+body.dark-mode .container {
+    background: rgba(50, 50, 50, 0.1);
+}
+
+h1 {
+    font-size: 3em;
+    color: #ff6347;
+    text-shadow: 2px 2px 0 #000;
+    transition: color 0.3s;
+}
+
+body.dark-mode h1 {
+    color: #ffa07a;
 }
 
 canvas {
-    border: 2px solid #000;
+    border: 5px solid #000;
+    background-color: #fff8dc;
+    transition: background-color 0.3s;
+}
+
+body.dark-mode canvas {
+    background-color: #333333;
 }
 
 .game-info {
     margin: 10px 0;
+    font-size: 1.2em;
+    color: #333;
+    display: flex;
+    justify-content: space-around;
+    transition: color 0.3s;
 }
 
-.game-info span {
-    margin: 0 10px;
+body.dark-mode .game-info {
+    color: #ffffff;
 }
 
-.controls button {
-    margin: 0 5px;
-    padding: 5px 10px;
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.controls label, .controls select, .controls button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 1em;
+    background-color: #ff6347;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #000;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode .controls label, body.dark-mode .controls select, body.dark-mode .controls button {
+    background-color: #ffa07a;
+    color: #000;
+}
+
+.controls button:hover {
+    background-color: #e5533d;
+}
+
+body.dark-mode .controls button:hover {
+    background-color: #ff7f50;
 }
 
 .modal {
@@ -37,7 +111,7 @@ canvas {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.6);
 }
 
 .modal-content {
@@ -47,4 +121,50 @@ canvas {
     border: 1px solid #888;
     width: 300px;
     text-align: center;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode .modal-content {
+    background-color: #444444;
+    color: #ffffff;
+}
+
+.modal-content h2 {
+    color: #ff6347;
+    transition: color 0.3s;
+}
+
+body.dark-mode .modal-content h2 {
+    color: #ffa07a;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #ff6347;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #000;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode .modal-content button {
+    background-color: #ffa07a;
+    color: #000;
+}
+
+.modal-content button:hover {
+    background-color: #e5533d;
+}
+
+body.dark-mode .modal-content button:hover {
+    background-color: #ff7f50;
+}
+
+#gameCanvas {
+    background: url('background.jpg') no-repeat center center;
+    background-size: cover;
 }

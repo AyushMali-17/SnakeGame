@@ -16,8 +16,16 @@
             <span>Next Number: <span id="nextNumber">1</span></span>
         </div>
         <div class="controls">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+                <option value="extreme">Extreme</option>
+            </select>
             <button id="startButton">Start Game</button>
             <button id="restartButton">Restart</button>
+            <button id="darkModeToggle">Toggle Dark Mode</button>
         </div>
     </div>
     <div id="gameOverModal" class="modal">
@@ -28,6 +36,8 @@
             <button id="playAgainButton">Play Again</button>
         </div>
     </div>
+    <audio id="eatSound" src="eat.mp3"></audio>
+    <audio id="gameOverSound" src="game-over.mp3"></audio>
     <script src="script.js"></script>
 </body>
 </html>
